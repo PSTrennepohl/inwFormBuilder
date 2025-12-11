@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INW Forms Builder</title>
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    -->
+    <link href="./bootstrap.min.css" rel="stylesheet">
+    <link href="./sweetalert2.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Construtor de Formulários INW</h1>
+        <!-- Linha 1: botões do Builder -->
+        <div class="mt-4 d-flex flex-wrap gap-2">
+            <button id="btn-builder-new" class="btn btn-outline-secondary">Novo (limpar canvas)</button>
+            <button id="btn-builder-load-sample" class="btn btn-outline-secondary">Carregar Exemplo</button>
+            <button id="btn-get-json" class="btn btn-primary">Obter JSON do Builder</button>
+            <button id="btn-builder-import-json" class="btn btn-outline-primary">Importar JSON no Builder</button>
+            <button id="btn-builder-toggle-debugjson" class="btn btn-outline-dark">Toggle JSON Debug</button>
+            <button id="btn-builder-load-post" class="btn btn-outline-success">Carregar Builder (POST)</button>
+        </div>
+        <!-- Modal de Pré-visualização do PDF -->
+        <div class="modal fade" id="previewPdfModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Pré-visualização para PDF</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-lg-6">
+                                <h6>Pré-visualização (HTML)</h6>
+                                <div id="pdfPreviewContainer" class="border rounded p-2" style="min-height: 300px;"></div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <h6>PDF Gerado</h6>
+                                <iframe id="pdfIframe" class="w-100 border rounded" style="min-height: 300px;" title="PDF"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-modal-export-pdf" type="button" class="btn btn-danger">Baixar PDF</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="inw-form" class="mt-2"></div>
+
+        <!-- Linha 2: botões do Render -->
+        <div class="mt-4 d-flex flex-wrap gap-2">
+            <button id="btn-render-from-builder" class="btn btn-success">Renderizar do Builder</button>
+            <button id="btn-render-clear" class="btn btn-outline-danger">Limpar Render</button>
+            <button id="btn-validate" class="btn btn-warning">Validar Render</button>
+            <button id="btn-reset" class="btn btn-secondary">Limpar Campos</button>
+            <button id="btn-render-json" class="btn btn-outline-primary">Coletar JSON do Render</button>
+            <button id="btn-render-readonly" class="btn btn-outline-dark">Toggle Readonly</button>
+            <button id="btn-render-fill-sample" class="btn btn-outline-success">Preencher Valores de Teste</button>
+            <button id="btn-render-rerender-from-render" class="btn btn-outline-primary">Rerender do JSON do Render</button>
+            <button id="btn-render-import-json" class="btn btn-outline-primary">Importar JSON no Render</button>
+            <button id="btn-render-export-pdf" class="btn btn-outline-danger">Exportar PDF</button>
+            <button id="btn-render-export-pdf-modal" class="btn btn-danger">Gerar PDF na Modal</button>
+            <button id="btn-render-load-post" class="btn btn-outline-success">Carregar Render (POST)</button>
+        </div>
+        <div id="renderer" class="mt-3"></div>
+        <textarea style="width: 100%; height:800px;" id="JSON"></textarea>
+    </div>
+    
+    
+    <script src="./jquery-3.6.0.min.js"></script>
+    <script src="./bootstrap.bundle.min.js"></script>
+    <script src="./sweetalert2.min.js"></script>
+    <script src="./inwformbuilder.js?v1"></script>
+    <script src="./inwformrender.js?v1"></script>
+
+    <script type="text/javascript">
+        (function() {
+            const State = { fb: null, fr: null };
+            const formJson = {"components":[{"type":"row","id":"comp_wd5lqf1kr_mgtrpzaq","classes":"rowform-row","children":[{"type":"col","id":"comp_hpglwavia_mguwr1hw","classes":"colform-columncol-12col-sm-12col-md-12col-lg-12col-xl-12col-xxl-12","sizes":{"col":"12","colsm-":"12","colmd-":"12","collg-":"12","colxl-":"12","colxxl-":"12"},"children":[{"type":"input","id":"comp_09evxs9bk_mguwr72a","label":"CampoTexto","name":"input_imd7fhh8i","required":false,"placeholder":"Digiteaqui...","attributes":{"type":"text","maxlength":"100","class":"form-control form-control-sm"}},{"type":"textarea","id":"comp_8rrwb63ie_mguwr7nj","label":"ÁreaTexto","name":"textarea_tmp3ghakk","required":false,"placeholder":"Digiteaqui...","attributes":{"class":"form-control form-control-sm"}},{"type":"radio","id":"comp_r82jq320u_mguwr8bm","label":"OpçõesRadio","name":"radio-group_comp_r82jq320u_mguwr8bm","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"checkbox","id":"comp_r9dltc9vc_mguwr8xd","label":"OpçõesCheckbox","name":"checkbox_atalwhldi","required":false,"attributes":{"type":"checkbox","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"radio","id":"comp_sm4eehgmx_mguwr9i5","label":"OpçõesRadio","name":"radio-group_comp_sm4eehgmx_mguwr9i5","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"checkbox","id":"comp_81yr09vei_mguwra51","label":"OpçõesCheckbox","name":"checkbox_92a538po7","required":false,"attributes":{"type":"checkbox","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"textarea","id":"comp_xw01ajeex_mguwran7","label":"ÁreaTexto","name":"textarea_r3hl3bf38","required":false,"placeholder":"Digiteaqui...","attributes":{"class":"form-control form-control-sm"}},{"type":"input","id":"comp_6jbnzyns6_mguwrb6j","label":"CampoTexto","name":"input_zvq0zln9p","required":false,"placeholder":"Digiteaqui...","attributes":{"type":"text","maxlength":"100","class":"form-control form-control-sm"}},{"type":"radio","id":"comp_1edcmslrj_mguwrca1","label":"OpçõesRadio","name":"radio-group_comp_1edcmslrj_mguwrca1","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"radio","id":"comp_i4njzcviw_mguwrd7q","label":"OpçõesRadio","name":"radio-group_comp_i4njzcviw_mguwrd7q","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"select","id":"comp_6ddutv42w_mguwrdzx","label":"Lista","name":"select_24n1zz8zb","required":false,"attributes":{"class":"form-control form-control-smform-select"},"options":[{"value":"","label":"Selecioneumaopção"},{"value":"opt_zclj9zslc_mguwq9ck","label":"Opção1"},{"value":"opt_jlfvos9ua_mguwq9ck","label":"Opção2"},{"value":"opt_zjzxbhz4z_mguwq9ck","label":"Opção3"}]},{"type":"select","id":"comp_pm0s7h6ld_mguwreyn","label":"Lista","name":"select_p2tzh12y3","required":false,"attributes":{"class":"form-control form-control-smform-select"},"options":[{"value":"","label":"Selecioneumaopção"},{"value":"opt_zclj9zslc_mguwq9ck","label":"Opção1"},{"value":"opt_jlfvos9ua_mguwq9ck","label":"Opção2"},{"value":"opt_zjzxbhz4z_mguwq9ck","label":"Opção3"}]},{"type":"radio","id":"comp_py6ndwuyu_mguwrfqw","label":"OpçõesRadio","name":"radio-group_comp_py6ndwuyu_mguwrfqw","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"select","id":"comp_lmwm7w20d_mguwrgj4","label":"Lista","name":"select_aii2e1wme","required":false,"attributes":{"class":"form-control form-control-smform-select"},"options":[{"value":"","label":"Selecioneumaopção"},{"value":"opt_zclj9zslc_mguwq9ck","label":"Opção1"},{"value":"opt_jlfvos9ua_mguwq9ck","label":"Opção2"},{"value":"opt_zjzxbhz4z_mguwq9ck","label":"Opção3"}]},{"type":"textarea","id":"comp_nbkmm8fz5_mguwrhc0","label":"ÁreaTexto","name":"textarea_lpy0x4lgx","required":false,"placeholder":"Digiteaqui...","attributes":{"class":"form-control form-control-sm"}},{"type":"input","id":"comp_28cymr4b4_mguwrhz7","label":"CampoTexto","name":"input_nvn79jnfs","required":false,"placeholder":"Digiteaqui...","attributes":{"type":"text","maxlength":"100","class":"form-control form-control-sm"}},{"type":"input","id":"comp_xk1e2mz4w_mguwrill","label":"CampoTexto","name":"input_8havm2jbw","required":false,"placeholder":"Digiteaqui...","attributes":{"type":"text","maxlength":"100","class":"form-control form-control-sm"}},{"type":"select","id":"comp_ye9uokj7e_mguwrjyv","label":"Lista","name":"select_lfdp5heye","required":false,"attributes":{"class":"form-control form-control-smform-select"},"options":[{"value":"","label":"Selecioneumaopção"},{"value":"opt_zclj9zslc_mguwq9ck","label":"Opção1"},{"value":"opt_jlfvos9ua_mguwq9ck","label":"Opção2"},{"value":"opt_zjzxbhz4z_mguwq9ck","label":"Opção3"}]},{"type":"radio","id":"comp_nyra80833_mguwrkpr","label":"OpçõesRadio","name":"radio-group_comp_nyra80833_mguwrkpr","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"checkbox","id":"comp_qat5jobk7_mguwrlgi","label":"OpçõesCheckbox","name":"checkbox_d878e5m67","required":false,"attributes":{"type":"checkbox","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]},{"type":"radio","id":"comp_krs16rwlj_mguwrm8p","label":"OpçõesRadio","name":"radio-group_comp_krs16rwlj_mguwrm8p","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]}]},{"type":"col","id":"comp_3eo5ye245_mgtrpzuw","classes":"colform-columncol-12col-sm-12col-md-12col-lg-12col-xl-6col-xxl-6","sizes":{"col":"12","colsm-":"12","colmd-":"12","collg-":"12","colxl-":"6","colxxl-":"6"},"children":[{"type":"radio","id":"comp_9ptmela7n_mgtrq12k","label":"OpçõesRadio","name":"radio-group_comp_9ptmela7n_mgtrq12k","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]}]},{"type":"col","id":"comp_b6xoj8ktv_mgtrqid5","classes":"colform-columncol-12col-sm-12col-md-12col-lg-12col-xl-6col-xxl-6","sizes":{"col":"12","colsm-":"12","colmd-":"12","collg-":"12","colxl-":"6","colxxl-":"6"},"children":[{"type":"checkbox","id":"comp_oqame05fy_mgtrqrfc","label":"OpçõesCheckbox","name":"checkbox_wz5jdowpc","required":false,"attributes":{"type":"checkbox","class":"form-check-input"},"inline":false,"options":[{"value":"Opção1","label":"Opção1","other":false},{"value":"Opção2","label":"Opção2","other":false},{"value":"Opção3","label":"Opção3","other":false}]}]}]}],"metadata":{"created":"2025-10-17T13:53:01.109Z","version":"1.0"}}
+            //const formJson = {"components":[{"type":"row","id":"comp_wd5lqf1kr_mgtrpzaq","classes":"row form-row","children":[{"type":"col","id":"comp_3eo5ye245_mgtrpzuw","classes":"col form-column col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6","sizes":{"col":"12","colsm-":"12","colmd-":"12","collg-":"12","colxl-":"6","colxxl-":"6"},"children":[{"type":"radio","id":"comp_9ptmela7n_mgtrq12k","label":"Opções Radio","name":"radio-group_comp_9ptmela7n_mgtrq12k","required":false,"attributes":{"type":"radio","class":"form-check-input"},"inline":false,"options":[{"value":"Opção 1","label":"Opção 1","other":false},{"value":"Opção 2","label":"Opção 2","other":false},{"value":"Opção 3","label":"Opção 3","other":false}]}]},{"type":"col","id":"comp_b6xoj8ktv_mgtrqid5","classes":"col form-column col-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 col-xxl-6","sizes":{"col":"12","colsm-":"12","colmd-":"12","collg-":"12","colxl-":"6","colxxl-":"6"},"children":[{"type":"checkbox","id":"comp_oqame05fy_mgtrqrfc","label":"Opções Checkbox","name":"checkbox_wz5jdowpc","required":false,"attributes":{"type":"checkbox","class":"form-check-input"},"inline":false,"options":[{"value":"Opção 1","label":"Opção 1","other":false},{"value":"Opção 2","label":"Opção 2","other":false},{"value":"Opção 3","label":"Opção 3","other":false}]}]}]}],"metadata":{"created":"2025-10-16T18:44:50.986Z","version":"1.0"}};
+
+            $(function() {
+                // Init Builder
+                $('#inw-form').INWformBuilder({
+                    dataType: 'json', debug: false, debugJson: false, canvasHeight: 500, menuPosition: 'left', formData: formJson
+                }).one('inw:builder:ready', function() { State.fb = $(this).data('INWformBuilder'); });
+
+                // Init Render
+                $('#renderer').INWformRender({ 
+                    formData: formJson, 
+                    readOnly: false, 
+                    debug: false,
+                    HTML: {
+                        head: '<div style="text-align: center; font-size: 14px; color: #FF0000; font-weight: bold; background-color: #FFFF00; padding: 10px;">CABEÇALHO PERSONALIZADO</div>',
+                        footer: '<hr><div style="border-top:1px solid; text-align: left; font-size: 14px; color: #666666;">Rodapé Direito</div>',
+                        css: '.form-render{border:1px solid red;} .form-label{color:green;}',
+                        paginacao: {
+                            active: true,
+                            formato: 'Página % de %%',
+                            posicao: 'right' //left/right/center
+                        }
+                    }
+                })
+                    .one('inw:render:ready', function() { State.fr = $(this).data('INWformRender'); });
+
+                // Builder
+                $('#btn-get-json').on('click', function() {
+                    if (!State.fb) return; $('#JSON').text(State.fb.getJSON(true));
+                });
+                $('#btn-builder-new').on('click', function() {
+                    if (!State.fb) return; State.fb.clear(); $('#JSON').text(State.fb.getJSON(true));
+                });
+                $('#btn-builder-load-sample').on('click', function() {
+                    if (!State.fb) return; State.fb.loadFromJSON(formJson);
+                });
+                $('#btn-builder-import-json').on('click', function() {
+                    if (!State.fb) return; try { State.fb.loadFromJSON(JSON.parse($('#JSON').val())); } catch { alert('JSON inválido para importação no builder'); }
+                });
+                $('#btn-builder-toggle-debugjson').on('click', function() { if (State.fb) State.fb.toggleDebugJson(); });
+                $('#btn-builder-load-post').on('click', async function() {
+                    if (!State.fb) return; try {
+                        await State.fb.loadFromURL({ url: '/api/builder/form', method: 'POST', params: { id: 1, name: 2 }, responsePath: null });
+                    } catch { alert('Falha ao carregar builder via POST'); }
+                });
+
+                // Render
+                $('#btn-render-from-builder').on('click', function() {
+                    if (!State.fb || !State.fr) return; const json = JSON.parse(State.fb.getJSON(false)); State.fr.clear(); State.fr.loadFromJSON(json, { readOnly: false });
+                });
+                $('#btn-render-clear').on('click', function() { if (State.fr) State.fr.clear(); });
+                $('#btn-validate').on('click', function() { if (!State.fr) return; alert(State.fr.validate() ? 'Formulário válido' : 'Formulário inválido'); });
+                $('#btn-reset').on('click', function() { if (State.fr) State.fr.reset(); });
+                $('#btn-render-json').on('click', function() { if (!State.fr) return; $('#JSON').text(State.fr.getJSON(true)); });
+                $('#btn-render-readonly').on('click', function() {
+                    if (!State.fr) return; const data = State.fr.getFormData(); const ro = $('#renderer').data('inw-readonly') === true; $('#renderer').data('inw-readonly', !ro); State.fr.clear(); State.fr.loadFromJSON(data, { readOnly: !ro });
+                });
+                $('#btn-render-fill-sample').on('click', function() {
+                    if (!State.fr) return; const $r = $('#renderer');
+                    $r.find('input[type="text"], input[type="email"], input[type="number"], input[type="tel"], input[type="url"]').first().val('Texto de teste');
+                    $r.find('textarea').first().val('Mensagem de teste');
+                    $r.find('select').first().find('option').eq(1).prop('selected', true).trigger('change');
+                    const rn = $r.find('input[type="radio"]').first().attr('name'); if (rn) $r.find(`input[type="radio"][name="${rn}"]`).first().prop('checked', true);
+                    const $cb = $r.find('input[type="checkbox"]').first(); if ($cb.length) $cb.prop('checked', true);
+                });
+                $('#btn-render-rerender-from-render').on('click', function() {
+                    if (!State.fr) return; const json = JSON.parse(State.fr.getJSON(false)); $('#JSON').text(State.fr.getJSON(true)); State.fr.clear(); State.fr.loadFromJSON(json, { readOnly: false });
+                });
+                $('#btn-render-import-json').on('click', function() {
+                    if (!State.fr) return; try { const p = JSON.parse($('#JSON').val()); State.fr.clear(); State.fr.loadFromJSON(p, { readOnly: false }); } catch { alert('JSON inválido para importação no render'); }
+                });
+                $('#btn-render-load-post').on('click', async function() {
+                    if (!State.fr) return; try { await State.fr.loadFromURL({ url: '/api/render/form', method: 'POST', params: { id: 1, name: 2 }, responsePath: null, readOnly: false }); } catch { alert('Falha ao carregar render via POST'); }
+                });
+                $('#btn-render-export-pdf').on('click', function() {
+                    if (!State.fr) return; const el = State.fr.getPrintableElement(); $('#pdfPreviewContainer').empty().append(el); new bootstrap.Modal(document.getElementById('previewPdfModal')).show();
+                });
+                $('#btn-modal-export-pdf').on('click', async function() { if (!State.fr) return; await State.fr.exportPDF({ filename: 'formulario.pdf' }); });
+                $('#btn-render-export-pdf-modal').on('click', async function() {
+                    if (!State.fr) return; const el = State.fr.getPrintableElement(); $('#pdfPreviewContainer').empty().append(el); new bootstrap.Modal(document.getElementById('previewPdfModal')).show();
+                    let dataUrl = await State.fr.exportPDFDataUrl(); if (dataUrl) { $('#pdfIframe').attr('src', dataUrl); return; }
+                    const url = await State.fr.exportPDFBlobUrl(); if (url) $('#pdfIframe').attr('src', url);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
