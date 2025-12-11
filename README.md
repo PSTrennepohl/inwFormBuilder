@@ -30,7 +30,7 @@ Exemplo](https://img.shields.io/badge/ABRIR%20EXEMPLO-005fed?style=for-the-badge
     ├── inwformbuilder.js          # Motor do Builder (drag/drop, UI, JSON)
     ├── inwformrender.js           # Motor do Renderer (inputs, coleta, PDF)
     ├── config.js                  # Configurações + lista de componentes extras
-    ├── /componentes               # (opcional) pastas com componentes customizados
+    ├── /palette                   # (opcional) pastas com componentes customizados
     ├── bootstrap.min.css
     ├── jquery-3.6.0.min.js
     └── sweetalert2.min.js
@@ -132,8 +132,8 @@ Use este arquivo como referência oficial.
 ``` javascript
 window.INW_FORMBUILDER_CONFIG = {
     palette: [
-        "componentes/campo_texto.js",
-        "componentes/campo_data.js"
+        "palette/campo_texto.js",
+        "palette/campo_data.js"
     ]
 };
 ```
